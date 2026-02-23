@@ -5,6 +5,13 @@ import { apiProxy } from "../apiProxy";
 export default function Dashboard() {
   const [summary, setSummary] = useState({ orders: 0, customers: 0, invoices: 0 });
 
+  const chartData = [
+    { label: "Orders", value: summary.orders, color: "bg-blue-500" },
+    { label: "Customers", value: summary.customers, color: "bg-emerald-500" },
+    { label: "Invoices", value: summary.invoices, color: "bg-violet-500" },
+  ];
+  const maxValue = Math.max(...chartData.map((item) => item.value), 1);
+
   useEffect(() => {
     (async () => {
       try {
@@ -37,6 +44,22 @@ export default function Dashboard() {
         <Link to="/cart" className="bg-white p-4 rounded-xl border text-center font-semibold">Cart</Link>
         <Link to="/customers" className="bg-white p-4 rounded-xl border text-center font-semibold">My Customers</Link>
         <Link to="/reports/sales" className="bg-white p-4 rounded-xl border text-center font-semibold">Sales Report</Link>
+      </div>
+
+      <div className="bg-white rounded-2xl p-4 border">
+        <h2 className="font-bold text-lg mb-4">Business Overview Graph</h2>
+        <div className="grid grid-cols-3 gap-4 items-end h-52">
+          {chartData.map((item) => (
+            <div key={item.label} className="flex flex-col items-center justify-end gap-2">
+              <p className="text-sm font-semibold">{item.value}</p>
+              <div
+                className={`w-full max-w-[80px] rounded-t-lg ${item.color}`}
+                style={{ height: `${Math.max((item.value / maxValue) * 160, 8)}px` }}
+              />
+              <p className="text-xs text-slate-500">{item.label}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
