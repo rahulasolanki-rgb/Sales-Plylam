@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { apiService } from "../apiService";
 import { apiProxy } from "../apiProxy";
 import { Order } from "../types";
 import { ClipboardList, ChevronRight, Search, Filter } from "lucide-react";
@@ -16,7 +15,8 @@ export default function Orders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const data = await apiProxy.getOrders();
+        const res: any = await apiProxy.getOrders({ scope: "mine" as any });
+        const data = Array.isArray(res) ? res : (res?.data ?? []);
         setOrders(data);
         setFilteredOrders(data);
       } catch (err) {
@@ -88,7 +88,7 @@ export default function Orders() {
               <div>
                 <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">Order #{order.id}</p>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                  {new Date(order.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  {new Date((order as any).created_at ?? (order as any).order_date ?? Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -103,7 +103,7 @@ export default function Orders() {
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Amount</p>
-                <p className="text-xl font-black text-slate-900">₹{order.total.toLocaleString()}</p>
+                <p className="text-xl font-black text-slate-900">₹{Number((order as any).total ?? (order as any).grand_total ?? 0).toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-1 text-primary font-black text-[10px] uppercase tracking-widest">
                 View Details
