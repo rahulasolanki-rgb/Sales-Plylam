@@ -1,0 +1,16 @@
+export interface NavItem {
+  key: string;
+  label: string;
+  path: string;
+}
+
+export const salesPortalNavigation: NavItem[] = [
+  { key: "dashboard", label: "Dashboard", path: "/dashboard" },
+  { key: "orders", label: "My Orders", path: "/orders" },
+  { key: "create-order", label: "Create Order", path: "/orders/new" },
+  { key: "cart", label: "Cart", path: "/cart" },
+  { key: "customers", label: "My Customers", path: "/customers" },
+  { key: "invoices", label: "Invoices", path: "/invoices" },
+  { key: "report", label: "Sales Report", path: "/reports/sales" },
+  { key: "profile", label: "Profile", path: "/profile" },
+];
