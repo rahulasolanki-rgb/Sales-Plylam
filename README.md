@@ -1,51 +1,20 @@
-# Sales Person Portal (from Customer Portal)
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-This repository now contains a **sales-person-first portal foundation** with:
+# Run and deploy your AI Studio app
 
-- Module structure for dashboard, customers, orders, invoices, cart, profile and reports.
-- API integration layer for the Timber & Plywood backend.
-- `mock` vs `real API` toggle to support local UI development without backend dependency.
+This contains everything you need to run your app locally.
 
-## Features mapped for Sales Person
+View your app in AI Studio: https://ai.studio/apps/d650c53b-91a4-43e1-a5f9-f316133ab6a6
 
-- Dashboard (summary cards, quick stats)
-- My Orders (`scope=mine`) + all visible assigned-customer orders
-- My Customers + customer-level notes
-- Invoices (all assigned / by customer)
-- Cart and create order flows
-- Profile and password update
-- Sales report primitives from orders + invoices data
+## Run Locally
 
-## Mock/Real API toggle
+**Prerequisites:**  Node.js
 
-Set environment value:
 
-- `USE_MOCK_API=true` → use local mock service responses.
-- `USE_MOCK_API=false` → use backend endpoints from `API_BASE_URL`.
-
-See: `src/config/env.ts`.
-
-## Core API usage covered
-
-All important endpoints from the provided docs are mapped in `src/services/api.ts`, including:
-
-- Auth: login/logout/refresh/me/forgot/reset
-- Sales endpoints: customers, customer detail, add note, orders (with scope), order detail, invoices, products
-- Shared flows: cart, create order, checkout, profile update/change password, health check
-
-## Suggested UI route map
-
-- `/dashboard`
-- `/orders`
-- `/orders/new`
-- `/cart`
-- `/customers`
-- `/customers/:id`
-- `/invoices`
-- `/reports/sales`
-- `/profile`
-
-## Notes
-
-This is a backend-integration-ready code foundation and is intentionally framework-agnostic.
-You can connect it to React/Vue/Angular screens directly using the exported `portalApi` methods.
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
