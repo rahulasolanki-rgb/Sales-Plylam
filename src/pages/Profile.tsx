@@ -14,7 +14,8 @@ export default function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    apiProxy.getMe().then(u => {
+    apiProxy.getMe().then((res: any) => {
+      const u = res?.user ?? res;
       setUser(u);
       setEditForm({ name: u.name, phone: u.phone || "", email: u.email });
     }).catch(console.error);
@@ -28,8 +29,8 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const updated = await apiProxy.updateProfile(editForm);
-      setUser(updated);
+      await apiProxy.updateProfile(editForm);
+      setUser((prev) => prev ? { ...prev, ...editForm } : prev);
       setIsEditing(false);
     } catch (err) {
       alert("Failed to update profile");
@@ -70,8 +71,8 @@ export default function Profile() {
             <Building2 className="w-5 h-5 text-blue-500" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">GST Number</p>
-            <p className="text-sm font-bold text-slate-900">{user.gst_number}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sales Role</p>
+            <p className="text-sm font-bold text-slate-900">{user.role}</p>
           </div>
         </div>
         <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
