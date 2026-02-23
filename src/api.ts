@@ -178,6 +178,72 @@ export const api = {
     return [...mockOrders];
   },
 
+
+  async createOrder(items: Array<{ product_id: string; quantity: number }>) {
+    await sleep(500);
+    const total = items.reduce((acc, item) => {
+      const product = mockProducts.find((p) => p.id === item.product_id);
+      return acc + (product ? product.price * item.quantity : 0);
+    }, 0);
+
+    const orderId = `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const newOrder: Order = {
+      id: orderId,
+      user_id: mockUser.id,
+      status: 'Created',
+      total,
+      created_at: new Date().toISOString(),
+      shipping_address: 'Shipping address to be updated',
+      items: items.map((item) => {
+        const product = mockProducts.find((p) => p.id === item.product_id);
+        return {
+          order_id: orderId,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: product?.price ?? 0,
+          name: product?.name,
+          unit: product?.unit,
+        };
+      }),
+    };
+
+    mockOrders.unshift(newOrder);
+
+    const newInvoice: Invoice = {
+      id: `INV-${orderId.split('-')[1]}`,
+      order_id: orderId,
+      user_id: mockUser.id,
+      amount: total,
+      status: 'Unpaid',
+      created_at: new Date().toISOString(),
+    };
+    mockInvoices.unshift(newInvoice);
+
+    return { success: true, order_id: orderId, amount: total };
+  },
+
+  async getCustomers() {
+    await sleep(200);
+    return [
+      {
+        id: 101,
+        name: 'Oakridge Construction',
+        contactPerson: 'Amit Mehta',
+        phone: '9876543201',
+        email: 'amit@oakridge.in',
+        outstandingBalance: '12000.00',
+      },
+      {
+        id: 102,
+        name: 'Prime Interiors',
+        contactPerson: 'Sneha Rao',
+        phone: '9876543202',
+        email: 'sneha@primeinteriors.in',
+        outstandingBalance: '4500.00',
+      },
+    ];
+  },
+
   async getOrder(id: string): Promise<Order> {
     await sleep(200);
     const order = mockOrders.find(o => o.id === id);
