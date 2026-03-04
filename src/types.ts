@@ -29,8 +29,9 @@ export interface CartItem {
 export interface Order {
   id: string;
   user_id: number;
+  customerName?: string;
   status: string;
-  total: number;
+  amount: number;
   created_at: string;
   shipping_address: string;
   items?: OrderItem[];

@@ -52,18 +52,19 @@ export default function InvoiceDetail() {
             doc.text(`Invoice ID: ${invoice.id}`, 10, 30);
             doc.text(`Date: ${new Date(invoice.created_at).toLocaleDateString()}`, 10, 40);
             doc.text(`Status: ${invoice.status}`, 10, 50);
-            doc.text(`Bill To: Oakridge Construction`, 10, 60);
+            doc.text(`Bill To: ${order.customerName ?? "Customer"}`, 10, 60);
             doc.text(`Shipping Address: ${order.shipping_address}`, 10, 70);
             doc.text(`Items:`, 10, 80);
             let y = 90;
-            order.items.forEach((item, idx) => {
+            const orderItems = order.items ?? [];
+            orderItems.forEach((item, idx) => {
               doc.text(
                 `${item.name} x${item.quantity} @ ₹${item.price} (${item.unit})`,
                 15,
                 y + idx * 10
               );
             });
-            doc.text(`Total: ₹${invoice.amount.toLocaleString()}`, 10, y + order.items.length * 10 + 10);
+            doc.text(`Total: ₹${order.amount.toLocaleString()}`, 10, y + orderItems.length * 10 + 10);
             doc.save(`Invoice_${invoice.id}.pdf`);
           }}
         >
@@ -107,18 +108,7 @@ export default function InvoiceDetail() {
           <div className="space-y-4">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bill To</p>
             <div className="space-y-1">
-              <p className="text-sm font-black text-slate-900">{(() => {
-                const profile = localStorage.getItem("profile");
-                if (profile) {
-                  try {
-                    const user = JSON.parse(profile);
-                    return user.name || user.email || "Customer";
-                  } catch {
-                    return "Customer";
-                  }
-                }
-                return "Customer";
-              })()}</p>
+              <p className="text-sm font-black text-slate-900">{order.customerName ?? "Customer"}</p>
               <p className="text-xs text-slate-500 font-medium leading-relaxed">
                 {order.shipping_address}
               </p>
@@ -145,7 +135,7 @@ export default function InvoiceDetail() {
           <div className="pt-6 border-t border-slate-50 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-              <span className="text-sm font-black text-slate-900">₹{invoice.amount.toLocaleString()}</span>
+              <span className="text-sm font-black text-slate-900">₹{order.amount.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tax (0%)</span>
@@ -153,7 +143,7 @@ export default function InvoiceDetail() {
             </div>
             <div className="pt-4 flex justify-between items-center">
               <span className="text-sm font-black text-slate-900 uppercase tracking-[0.15em]">Total Amount</span>
-              <span className="text-3xl font-black text-slate-900">₹{invoice.amount.toLocaleString()}</span>
+              <span className="text-3xl font-black text-slate-900">₹{order.amount.toLocaleString()}</span>
             </div>
           </div>
         </div>
