@@ -10,7 +10,7 @@ export default function SalesReport() {
       const invoicesRes: any = await apiProxy.getInvoices?.();
       const orders = Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data ?? []);
       const invoices = Array.isArray(invoicesRes) ? invoicesRes : (invoicesRes?.data ?? []);
-      const totalValue = orders.reduce((sum: number, o: any) => sum + Number(o.total ?? o.grand_total ?? 0), 0);
+      const totalValue = orders.reduce((sum: number, o: any) => sum + Number(o.amount ?? o.grand_total ?? 0), 0);
       const unpaidInvoices = invoices.filter((i: any) => String(i.status).toLowerCase() === "unpaid").length;
       setReport({ totalOrders: orders.length, totalValue, unpaidInvoices });
     })().catch(console.error);

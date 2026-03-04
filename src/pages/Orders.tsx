@@ -103,7 +103,7 @@ export default function Orders() {
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Amount</p>
-                <p className="text-xl font-black text-slate-900">₹{Number((order as any).total ?? (order as any).grand_total ?? 0).toLocaleString()}</p>
+                <p className="text-xl font-black text-slate-900">₹{Number((order as any).amount ?? (order as any).grand_total ?? 0).toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-1 text-primary font-black text-[10px] uppercase tracking-widest">
                 View Details

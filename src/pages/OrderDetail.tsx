@@ -86,11 +86,12 @@ export default function OrderDetail() {
             doc.text(`Order Receipt`, 10, 15);
             doc.setFontSize(12);
             doc.text(`Order ID: ${order.id}`, 10, 30);
-            doc.text(`Date: ${new Date(order.created_at).toLocaleDateString()}`, 10, 40);
-            doc.text(`Status: ${order.status}`, 10, 50);
-            doc.text(`Shipping Address: ${order.shipping_address}`, 10, 60);
-            doc.text(`Items:`, 10, 70);
-            let y = 80;
+            doc.text(`Customer Name: ${order.customerName ?? "-"}`, 10, 40);
+            doc.text(`Date: ${new Date(order.created_at).toLocaleDateString()}`, 10, 50);
+            doc.text(`Status: ${order.status}`, 10, 60);
+            doc.text(`Shipping Address: ${order.shipping_address}`, 10, 70);
+            doc.text(`Items:`, 10, 80);
+            let y = 90;
             order.items.forEach((item, idx) => {
               doc.text(
                 `${item.name} x${item.quantity} @ ₹${item.price} (${item.unit})`,
@@ -98,7 +99,7 @@ export default function OrderDetail() {
                 y + idx * 10
               );
             });
-            doc.text(`Total: ₹${order.total.toLocaleString()}`, 10, y + order.items.length * 10 + 10);
+            doc.text(`Total: ₹${order.amount.toLocaleString()}`, 10, y + order.items.length * 10 + 10);
             doc.save(`Order_${order.id}.pdf`);
           }}
         >
@@ -113,20 +114,9 @@ export default function OrderDetail() {
             <Inbox className="w-10 h-10 text-primary" />
           </div>
           <div className="flex flex-col">
-            {/* Use profile name from localStorage */}
-            <p className="text-text-dark text-2xl font-extrabold leading-tight tracking-tight">{(() => {
-              const profile = localStorage.getItem("profile");
-              if (profile) {
-                try {
-                  const user = JSON.parse(profile);
-                  return user.name || user.email || "Customer";
-                } catch {
-                  return "Customer";
-                }
-              }
-              return "Customer";
-            })()}</p>
+            <p className="text-text-dark text-2xl font-extrabold leading-tight tracking-tight">{order.customerName ?? "Customer"}</p>
             <p className="text-text-dark/60 text-sm font-medium">Order #{order.id}</p>
+            <p className="text-text-dark/60 text-sm font-medium">Customer: {order.customerName ?? "-"}</p>
             <p className="text-text-dark/50 text-sm">Placed on {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
           </div>
         </div>
@@ -206,12 +196,12 @@ export default function OrderDetail() {
         <div className="bg-background-light rounded-2xl p-6 space-y-3">
           <div className="flex justify-between items-center text-sm">
             <span className="text-text-dark/60">Subtotal</span>
-            <span className="text-text-dark font-medium">₹{order.total.toLocaleString()}</span>
+            <span className="text-text-dark font-medium">₹{order.amount.toLocaleString()}</span>
           </div>
           <div className="h-px bg-text-dark/10 my-2"></div>
           <div className="flex justify-between items-center">
             <span className="text-text-dark font-extrabold text-lg">Grand Total</span>
-            <span className="text-primary font-extrabold text-2xl">₹{order.total.toLocaleString()}</span>
+            <span className="text-primary font-extrabold text-2xl">₹{order.amount.toLocaleString()}</span>
           </div>
         </div>
 

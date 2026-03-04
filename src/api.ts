@@ -27,7 +27,8 @@ let mockOrders: Order[] = [
     id: 'ORD-K9J2L4M1',
     user_id: 1,
     status: 'Dispatched',
-    total: 10711.80,
+    customerName: "Oakridge Construction",
+    amount: 10711.80,
     created_at: '2023-10-24T09:15:00Z',
     shipping_address: '882 Woodcutter Road, Portland, OR 97201',
     items: [
@@ -40,7 +41,8 @@ let mockOrders: Order[] = [
     id: 'ORD-A1B2C3D4',
     user_id: 1,
     status: 'Completed',
-    total: 2500.00,
+    customerName: "Oakridge Construction",
+    amount: 2500.00,
     created_at: '2023-10-20T14:30:00Z',
     shipping_address: '882 Woodcutter Road, Portland, OR 97201',
     items: [
@@ -52,7 +54,8 @@ let mockOrders: Order[] = [
     id: 'ORD-X7Y8Z9W0',
     user_id: 1,
     status: 'Approved',
-    total: 1250.00,
+    customerName: "Oakridge Construction",
+    amount: 1250.00,
     created_at: '2023-10-25T11:00:00Z',
     shipping_address: '882 Woodcutter Road, Portland, OR 97201',
     items: [
@@ -144,7 +147,8 @@ export const api = {
       id: orderId,
       user_id: mockUser.id,
       status: 'Created',
-      total,
+      customerName: mockUser.name,
+      amount: total,
       created_at: new Date().toISOString(),
       shipping_address,
       items: mockCart.map(item => ({
@@ -191,7 +195,8 @@ export const api = {
       id: orderId,
       user_id: mockUser.id,
       status: 'Created',
-      total,
+      customerName: mockUser.name,
+      amount: total,
       created_at: new Date().toISOString(),
       shipping_address: 'Shipping address to be updated',
       items: items.map((item) => {
