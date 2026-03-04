@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiProxy } from "../apiProxy";
-
-type Customer = { id: number; name: string; contactPerson?: string; phone?: string; email?: string; outstandingBalance?: string };
+import type { Customer } from "../types/api";
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -18,9 +17,11 @@ export default function Customers() {
       {customers.map((customer) => (
         <div key={customer.id} className="bg-white border rounded-2xl p-4">
           <p className="font-bold">{customer.name}</p>
-          <p className="text-xs text-slate-500">{customer.contactPerson}</p>
-          <p className="text-xs text-slate-500">{customer.phone} • {customer.email}</p>
+          <p className="text-xs text-slate-500">{customer.legalName ?? customer.contactPerson ?? "-"}</p>
+          <p className="text-xs text-slate-500">{customer.phone ?? "-"} • {customer.email ?? "-"}</p>
           <p className="text-sm mt-2">Outstanding: ₹{customer.outstandingBalance ?? "0.00"}</p>
+          <p className="text-xs text-slate-500">Credit Limit: ₹{customer.creditLimit ?? "0.00"}</p>
+          <p className="text-xs text-slate-500">Status: {customer.status ?? "-"}</p>
         </div>
       ))}
       {customers.length === 0 && <p className="text-slate-500">No assigned customers.</p>}

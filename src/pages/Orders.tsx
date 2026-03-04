@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiProxy } from "../apiProxy";
-import { Order } from "../types";
+import type { Order } from "../types/api";
 import { ClipboardList, ChevronRight, Search, Filter } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -42,7 +42,7 @@ export default function Orders() {
 
   if (loading) return <div className="p-8 text-center text-slate-500">Loading Orders...</div>;
 
-  const statuses = ["All", "Created", "Approved", "Paid", "Dispatched", "Completed"];
+  const statuses = ["All", "Created", "Accepted", "Approved", "Invoiced", "Dispatched", "Completed", "Cancelled"];
 
   return (
     <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
@@ -88,7 +88,7 @@ export default function Orders() {
               <div>
                 <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">Order #{order.id}</p>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                  {new Date((order as any).created_at ?? (order as any).order_date ?? Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  {(order.customerName ?? `Customer #${order.customer_id}`)} • {new Date(order.order_date ?? Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -103,7 +103,7 @@ export default function Orders() {
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Amount</p>
-                <p className="text-xl font-black text-slate-900">₹{Number((order as any).amount ?? (order as any).grand_total ?? 0).toLocaleString()}</p>
+                <p className="text-xl font-black text-slate-900">₹{Number(order.amount ?? 0).toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-1 text-primary font-black text-[10px] uppercase tracking-widest">
                 View Details

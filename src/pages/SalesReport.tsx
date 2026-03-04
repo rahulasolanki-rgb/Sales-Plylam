@@ -6,12 +6,12 @@ export default function SalesReport() {
 
   useEffect(() => {
     (async () => {
-      const ordersRes: any = await apiProxy.getOrders?.({ scope: "mine" as any });
+      const ordersRes: any = await (apiProxy.getOrders?.({ scope: "mine" as any }) ?? apiProxy.getOrders?.());
       const invoicesRes: any = await apiProxy.getInvoices?.();
       const orders = Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data ?? []);
       const invoices = Array.isArray(invoicesRes) ? invoicesRes : (invoicesRes?.data ?? []);
-      const totalValue = orders.reduce((sum: number, o: any) => sum + Number(o.amount ?? o.grand_total ?? 0), 0);
-      const unpaidInvoices = invoices.filter((i: any) => String(i.status).toLowerCase() === "unpaid").length;
+      const totalValue = orders.reduce((sum: number, o: any) => sum + Number(o.amount ?? 0), 0);
+      const unpaidInvoices = invoices.filter((i: any) => ["due", "overdue"].includes(String(i.status).toLowerCase())).length;
       setReport({ totalOrders: orders.length, totalValue, unpaidInvoices });
     })().catch(console.error);
   }, []);
