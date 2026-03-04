@@ -1,4 +1,4 @@
-export type UserRole = "Customer" | "Sub-user" | "Sales Person";
+export type UserRole = "Customer" | "Sub-user" | "Sales Person" | "Manager" | "Admin / Owner" | "Super Admin";
 
 export interface ApiEnvelope {
   success: boolean;
@@ -23,10 +23,18 @@ export interface LoginResponse extends ApiEnvelope {
 export interface Customer {
   id: number;
   name: string;
+  legalName?: string;
+  gstin?: string;
+  address?: string;
   contactPerson?: string;
   phone?: string;
   email?: string;
+  type?: "Dealer" | "Retailer";
+  creditLimit?: string;
   outstandingBalance?: string;
+  status?: "Approved" | "Pending Approval";
+  sales_person_id?: number;
+  created_at?: string;
 }
 
 export interface CustomerNote {
@@ -44,27 +52,35 @@ export interface CustomerDetail extends Customer {
 export interface Product {
   id: string;
   name: string;
-  category: string;
+  category?: string;
+  category_id?: number;
   price: string;
-  priceUnit: string;
+  priceUnit?: string;
   stock?: number;
-  stock_status?: string;
+  status?: "Active" | "Inactive";
+  gstRate?: number;
+  reorderLevel?: number;
 }
 
 export interface Order {
   id: string;
   customer_id: number;
-  customerName: string;
-  status: string;
+  customerName?: string;
   order_date?: string;
-  grand_total?: string;
+  amount?: string | number;
+  status: "Created" | "Accepted" | "Approved" | "Invoiced" | "Dispatched" | "Completed" | "Cancelled";
+  paymentStatus?: "Credit" | "Paid";
+  sales_person_id?: number;
+  salesPerson?: string;
 }
 
 export interface OrderItem {
+  id?: number;
+  order_id: string;
   product_id: string;
   productName?: string;
   quantity: number;
-  unitPrice?: string;
+  unitPrice?: string | number;
 }
 
 export interface OrderDetail extends Order {
@@ -74,11 +90,15 @@ export interface OrderDetail extends Order {
 export interface Invoice {
   id: string;
   order_id: string;
-  issue_date: string;
-  due_date: string;
-  grand_total: string;
-  status: string;
-  customer_name?: string;
+  customer_id?: number;
+  issue_date?: string;
+  due_date?: string;
+  sub_total?: string | number;
+  cgst?: string | number;
+  sgst?: string | number;
+  grand_total: string | number;
+  status: "Paid" | "Due" | "Overdue";
+  customerName?: string;
 }
 
 export interface CartItem {
