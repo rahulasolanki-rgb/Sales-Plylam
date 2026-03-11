@@ -1,65 +1,72 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiProxy } from "../apiProxy";
+import { DashboardMetrics } from "../types";
+
+const formatCurrency = (value: number | null | undefined) => {
+  const normalized = value ?? 0;
+  return `\u20B9${normalized.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+};
+
+const zeroMetrics: DashboardMetrics = {
+  monthly_sales: 0,
+  new_orders_week: 0,
+  assigned_customers: 0,
+  pending_orders_count: 0,
+  total_outstanding: 0,
+  due_invoices_count: 0,
+};
 
 export default function Dashboard() {
-  const [summary, setSummary] = useState({ orders: 0, customers: 0, invoices: 0 });
-
-  const chartData = [
-    { label: "Orders", value: summary.orders, color: "bg-blue-500" },
-    { label: "Customers", value: summary.customers, color: "bg-emerald-500" },
-    { label: "Invoices", value: summary.invoices, color: "bg-violet-500" },
-  ];
-  const maxValue = Math.max(...chartData.map((item) => item.value), 1);
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       try {
-        const [ordersRes, customersRes, invoicesRes] = await Promise.all([
-          apiProxy.getOrders?.({ scope: "mine" as any }) ?? apiProxy.getOrders?.(),
-          apiProxy.getCustomers?.(),
-          apiProxy.getInvoices?.(),
-        ]);
-        const orders = Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data ?? []);
-        const customers = Array.isArray(customersRes) ? customersRes : (customersRes?.data ?? []);
-        const invoices = Array.isArray(invoicesRes) ? invoicesRes : (invoicesRes?.data ?? []);
-        setSummary({ orders: orders.length, customers: customers.length, invoices: invoices.length });
+        const data = await apiProxy.getDashboard();
+        setMetrics(data);
       } catch (error) {
-        console.error(error);
+        console.error("Unable to load dashboard metrics", error);
+        setMetrics(null);
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
 
+  if (loading) return <div className="p-8 text-center text-slate-500">Loading dashboard...</div>;
+
+  const summary = metrics ?? zeroMetrics;
+  const statCards = [
+    { label: "Monthly Sales", value: formatCurrency(summary.monthly_sales), detail: "This month" },
+    { label: "New Orders (week)", value: summary.new_orders_week, detail: "Added in last 7 days" },
+    { label: "Assigned Customers", value: summary.assigned_customers, detail: "Under your coverage" },
+    { label: "Pending Orders", value: summary.pending_orders_count, detail: "Not Completed/Cancelled" },
+    { label: "Outstanding", value: formatCurrency(summary.total_outstanding), detail: "Total receivables" },
+    { label: "Due Invoices", value: summary.due_invoices_count, detail: "Status 'Due'" },
+  ];
+
   return (
     <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
       <h1 className="text-2xl font-black">Sales Dashboard</h1>
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl p-4 border"><p className="text-xs">My Orders</p><p className="text-2xl font-black">{summary.orders}</p></div>
-        <div className="bg-white rounded-2xl p-4 border"><p className="text-xs">Customers</p><p className="text-2xl font-black">{summary.customers}</p></div>
-        <div className="bg-white rounded-2xl p-4 border"><p className="text-xs">Invoices</p><p className="text-2xl font-black">{summary.invoices}</p></div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {statCards.map((card) => (
+          <div key={card.label} className="bg-white rounded-2xl p-4 border flex flex-col justify-between">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{card.label}</p>
+            <p className="text-2xl font-black text-slate-900 mt-2">{card.value}</p>
+            <p className="text-[10px] text-slate-500 mt-1">{card.detail}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Link to="/orders/new" className="bg-primary text-white p-4 rounded-xl font-semibold text-center">Create Order</Link>
+        <Link to="/products" className="bg-primary text-white p-4 rounded-xl font-semibold text-center">Browse Products</Link>
         <Link to="/cart" className="bg-white p-4 rounded-xl border text-center font-semibold">Cart</Link>
-        <Link to="/customers" className="bg-white p-4 rounded-xl border text-center font-semibold">My Customers</Link>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 border">
-        <h2 className="font-bold text-lg mb-4">Business Overview Graph</h2>
-        <div className="grid grid-cols-3 gap-4 items-end h-52">
-          {chartData.map((item) => (
-            <div key={item.label} className="flex flex-col items-center justify-end gap-2">
-              <p className="text-sm font-semibold">{item.value}</p>
-              <div
-                className={`w-full max-w-[80px] rounded-t-lg ${item.color}`}
-                style={{ height: `${Math.max((item.value / maxValue) * 160, 8)}px` }}
-              />
-              <p className="text-xs text-slate-500">{item.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

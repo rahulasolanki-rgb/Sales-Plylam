@@ -2,13 +2,11 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Trash2, ShoppingBag, ChevronRight, Minus, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-
 import { useCart } from "../context/CartContext";
 import { isSalesUser } from "../utils/profile";
-import CustomerAutoComplete from "../components/CustomerAutoComplete";
 
 export default function Cart() {
-  const { cartItems: items, removeFromCart: removeItem, updateQuantity, cartTotal, customerId, setCustomerId, customer } = useCart();
+  const { cartItems: items, removeFromCart: removeItem, updateQuantity, cartTotal, customerId, customer, selectedCustomerName } = useCart();
   const navigate = useNavigate();
   const salesUser = isSalesUser();
   const subtotal = items.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
@@ -21,17 +19,10 @@ export default function Cart() {
         </span>
       </header>
       {salesUser && (
-        <div className="mb-6 bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
-          <CustomerAutoComplete
-            selectedId={customerId ?? null}
-            selectedName={customer?.name}
-            onSelect={(id) => setCustomerId(id)}
-            placeholder="Search customers..."
-            label="Customer"
-          />
-          {!customer?.name && (
-            <p className="text-xs text-slate-500">Choose a customer to unlock pricing and cart data.</p>
-          )}
+        <div className="text-xs text-slate-500 mb-4">
+          {customerId
+            ? `Cart bound to ${selectedCustomerName ?? customer?.name ?? "the selected customer"}.`
+            : "Select an approved customer from the Products page to unlock pricing and cart data."}
         </div>
       )}
       {items.length === 0 ? (

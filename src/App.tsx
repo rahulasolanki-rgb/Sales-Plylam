@@ -13,7 +13,6 @@ import InvoiceDetail from "./pages/InvoiceDetail";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Customers from "./pages/Customers";
-import CreateOrder from "./pages/CreateOrder";
 import { CartProvider } from "./context/CartContext";
 import { env } from "./config/env";
 
@@ -37,7 +36,6 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/new" element={<CreateOrder />} />
             <Route path="/order/:id" element={<OrderDetail />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/invoices" element={<Invoices />} />

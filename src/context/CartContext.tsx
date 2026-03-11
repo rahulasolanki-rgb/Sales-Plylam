@@ -11,7 +11,9 @@ interface CartContextType {
   pricingType?: number;
   customer?: Cart["customer"];
   customerId?: number | null;
-  setCustomerId: (id: number | null) => void;
+  selectedCustomerName?: string | null;
+  selectedCustomerPricingType?: number | null;
+  setCustomerId: (id: number | null, name?: string | null, pricingType?: number | null) => void;
   addToCart: (productId: string, quantity: number) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
@@ -30,13 +32,48 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const stored = localStorage.getItem("selected_customer_id");
     return stored ? Number(stored) : null;
   });
+  const [selectedCustomerName, setSelectedCustomerNameState] = useState<string | null>(() => {
+    return localStorage.getItem("selected_customer_name");
+  });
+  const [selectedCustomerPricingType, setSelectedCustomerPricingTypeState] = useState<number | null>(() => {
+    const stored = localStorage.getItem("selected_customer_pricing_type");
+    return stored ? Number(stored) : null;
+  });
 
-  const setCustomerId = (id: number | null) => {
+  const persistCustomerName = (name: string | null) => {
+    setSelectedCustomerNameState(name);
+    if (name) {
+      localStorage.setItem("selected_customer_name", name);
+    } else {
+      localStorage.removeItem("selected_customer_name");
+    }
+  };
+
+  const persistCustomerPricingType = (type: number | null) => {
+    setSelectedCustomerPricingTypeState(type);
+    if (type !== null) {
+      localStorage.setItem("selected_customer_pricing_type", String(type));
+    } else {
+      localStorage.removeItem("selected_customer_pricing_type");
+    }
+  };
+
+  const setCustomerId = (id: number | null, name?: string | null, pricingType?: number | null) => {
     setCustomerIdState(id);
     if (id) {
       localStorage.setItem("selected_customer_id", String(id));
     } else {
       localStorage.removeItem("selected_customer_id");
+    }
+    if (name !== undefined) {
+      persistCustomerName(name);
+    } else if (id === null) {
+      persistCustomerName(null);
+    }
+    if (pricingType !== undefined) {
+      persistCustomerPricingType(pricingType);
+    } else if (id === null) {
+      persistCustomerPricingType(null);
     }
   };
 
@@ -54,6 +91,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCartTotal(Number(cart.total ?? 0));
       setPricingType(cart.pricing_type);
       setCustomer(cart.customer);
+      persistCustomerName(cart.customer?.name ?? null);
+      persistCustomerPricingType(cart.customer?.pricing_type ?? null);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
     }
@@ -113,6 +152,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity,
         getItemQuantity,
         refreshCart,
+        selectedCustomerName,
+        selectedCustomerPricingType,
       }}
     >
       {children}

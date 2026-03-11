@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiProxy } from "../apiProxy";
-import { Invoice, OrderDetail } from "../types";
+import { InvoiceDetails, OrderDetails} from "../types";
 import { ArrowLeft, Share2, CheckCircle2, Clock } from "lucide-react";
 import { getStoredProfile } from "../utils/profile";
 
 export default function InvoiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const [order, setOrder] = useState<OrderDetail | null>(null);
+  const [invoice, setInvoice] = useState<InvoiceDetails | null>(null);
+  const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const invoices = await apiProxy.getInvoices();
-        const inv = invoices.find((item) => item.id === id) ?? null;
+        const res = await apiProxy.getInvoice(id!);
+        const inv = res?.data ?? null;
         setInvoice(inv);
         if (inv) {
           const ord = await apiProxy.getOrder(inv.order_id);
@@ -140,15 +140,17 @@ export default function InvoiceDetail() {
           <div className="pt-6 border-t border-slate-50 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-              <span className="text-sm font-black text-slate-900">â‚¹{Number(invoice.grand_total).toLocaleString()}</span>
+              <span className="text-sm font-black text-slate-900">₹{Number(invoice.sub_total ?? 0).toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tax (0%)</span>
-              <span className="text-sm font-black text-slate-900">â‚¹0.00</span>
+              <span className="text-sm font-black text-slate-900">
+                ₹{(Number(invoice.cgst ?? "0") + Number(invoice.sgst ?? "0")).toLocaleString("en-IN")}
+              </span>
             </div>
             <div className="pt-4 flex justify-between items-center">
               <span className="text-sm font-black text-slate-900 uppercase tracking-[0.15em]">Total Amount</span>
-              <span className="text-3xl font-black text-slate-900">â‚¹{Number(invoice.grand_total).toLocaleString()}</span>
+              <span className="text-3xl font-black text-slate-900">₹{Number(invoice.grand_total ?? 0).toLocaleString("en-IN")}</span>
             </div>
           </div>
         </div>

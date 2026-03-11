@@ -108,6 +108,9 @@ export default function Invoices() {
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
                   {new Date(invoice.issue_date).toLocaleDateString()} • Order #{invoice.order_id}
                 </p>
+                <p className="text-[11px] text-slate-500 font-medium mt-1 truncate">
+                  {invoice.customer_name ?? "Customer"}
+                </p>
                 <div className="flex justify-between items-center mt-3">
                   <p className="text-lg font-black text-slate-900">₹{Number(invoice.grand_total).toLocaleString()}</p>
                   <div className="flex items-center gap-1 text-primary font-black text-[10px] uppercase tracking-widest">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiProxy } from "../apiProxy";
 import { OrderDetails } from "../types";
-import { ArrowLeft, Share2, Download, Package, Truck, Check, Inbox, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Share2, Package, Truck, Check, Inbox, CheckCircle2 } from "lucide-react";
 import { getStoredProfile } from "../utils/profile";
 
 export default function OrderDetail() {
@@ -97,7 +97,7 @@ export default function OrderDetail() {
                 y + idx * 10
               );
             });
-            doc.text(`Total: ₹${Number(order.grand_total ?? 0).toLocaleString()}`, 10, y + order.items.length * 10 + 10);
+            doc.text(`Total: ₹${Number(order.amount ?? 0).toLocaleString()}`, 10, y + order.items.length * 10 + 10);
             doc.save(`Order_${order.id}.pdf`);
           }}
         >
@@ -195,28 +195,15 @@ export default function OrderDetail() {
         <div className="bg-background-light rounded-2xl p-6 space-y-3">
           <div className="flex justify-between items-center text-sm">
             <span className="text-text-dark/60">Subtotal</span>
-            <span className="text-text-dark font-medium">₹{Number(order.grand_total ?? 0).toLocaleString()}</span>
+            <span className="text-text-dark font-medium">₹{Number(order.amount ?? 0).toLocaleString()}</span>
           </div>
           <div className="h-px bg-text-dark/10 my-2"></div>
           <div className="flex justify-between items-center">
             <span className="text-text-dark font-extrabold text-lg">Grand Total</span>
-            <span className="text-primary font-extrabold text-2xl">₹{Number(order.grand_total ?? 0).toLocaleString()}</span>
+            <span className="text-primary font-extrabold text-2xl">₹{Number(order.amount ?? 0).toLocaleString()}</span>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-100 flex gap-3 z-10 max-w-md mx-auto">
-          <button 
-            onClick={() => alert("Invoice download started (Demo)")}
-            className="flex-1 bg-primary text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-          >
-            <Download className="w-5 h-5" />
-            Download Invoice
-          </button>
-          <button className="w-14 h-14 bg-background-light text-text-dark rounded-xl flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <Share2 className="w-6 h-6" />
-          </button>
-        </div>
       </div>
     </div>
   );

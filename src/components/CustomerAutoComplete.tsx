@@ -4,11 +4,12 @@ import { Customer } from "../types";
 
 interface CustomerAutoCompleteProps {
   selectedId: number | null;
-  selectedName?: string;
-  onSelect: (id: number | null) => void;
+  selectedName?: string | null;
+  onSelect: (id: number | null, name?: string | null, pricingType?: number | null) => void;
   placeholder?: string;
   disabled?: boolean;
   label?: string;
+  onlyApproved?: boolean;
 }
 
 export default function CustomerAutoComplete({
@@ -18,6 +19,7 @@ export default function CustomerAutoComplete({
   placeholder = "Start typing a customer",
   disabled = false,
   label,
+  onlyApproved = false,
 }: CustomerAutoCompleteProps) {
   const [query, setQuery] = useState(selectedName ?? "");
   const [suggestions, setSuggestions] = useState<Customer[]>([]);
@@ -27,8 +29,8 @@ export default function CustomerAutoComplete({
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setQuery(selectedName ?? "");
-  }, [selectedName]);
+  setQuery(selectedName ?? "");
+}, [selectedName]);
 
   useEffect(() => {
     let active = true;
@@ -46,7 +48,13 @@ export default function CustomerAutoComplete({
           const res: any = await apiProxy.getCustomers(params);
           const data: Customer[] = Array.isArray(res) ? res : res?.data ?? [];
           if (!active) return;
-          setSuggestions(data);
+          const filtered = onlyApproved
+            ? data.filter((customer) => {
+                const status = (customer.status ?? "").toLowerCase();
+                return status === "approved" || status.includes("approved");
+              })
+            : data;
+          setSuggestions(filtered);
           setOpen(true);
         } catch (err) {
           console.error(err);
@@ -60,7 +68,7 @@ export default function CustomerAutoComplete({
       active = false;
       clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, onlyApproved]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,7 +82,7 @@ export default function CustomerAutoComplete({
 
   const handleSelect = (customer: Customer) => {
     setQuery(customer.name);
-    onSelect(customer.id);
+    onSelect(customer.id, customer.name, customer.pricing_type ?? null);
     setOpen(false);
   };
 
@@ -91,7 +99,7 @@ export default function CustomerAutoComplete({
           const value = e.target.value;
           setQuery(value);
           if (!value) {
-            onSelect(null);
+            onSelect(null, null, null);
           }
         }}
         placeholder={placeholder}

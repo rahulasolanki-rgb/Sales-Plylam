@@ -6,6 +6,7 @@ import { ChevronLeft, ShoppingCart, Minus, Plus, Share2 } from "lucide-react";
 import CustomerAutoComplete from "../components/CustomerAutoComplete";
 import { useCart } from "../context/CartContext";
 import { isSalesUser } from "../utils/profile";
+import { getTieredProductPrice } from "../utils/pricing";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -13,13 +14,18 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const { addToCart, customerId, setCustomerId, customer } = useCart();
+  const { addToCart, customerId, setCustomerId, customer, selectedCustomerName, selectedCustomerPricingType } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await apiProxy.getProducts();
-        const p = (res?.data ?? []).find(item => item.id === id);
+        const params: Record<string, string | number | undefined> = {
+          id,
+          ...(customerId != null ? { customer_id: customerId } : {}),
+          ...(selectedCustomerPricingType != null ? { pricing_type: selectedCustomerPricingType } : {}),
+        };
+        const res = await apiProxy.getProducts(params);
+        const p = (res?.data ?? []).find((item) => item.id === id);
         setProduct(p || null);
       } catch (err) {
         console.error(err);
@@ -28,7 +34,7 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, customerId, selectedCustomerPricingType]);
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -46,6 +52,7 @@ export default function ProductDetail() {
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (!product) return <div className="p-8 text-center">Product not found</div>;
+  const tieredPrice = getTieredProductPrice(product, selectedCustomerPricingType);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
@@ -66,13 +73,14 @@ export default function ProductDetail() {
         <div className="bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
           <CustomerAutoComplete
             selectedId={customerId ?? null}
-            selectedName={customer?.name}
-            onSelect={(id) => setCustomerId(id)}
+            selectedName={selectedCustomerName ?? customer?.name}
+            onSelect={(id, name, pricingType) => setCustomerId(id, name ?? null, pricingType ?? null)}
             placeholder="Search customers..."
             label="Customer"
+            onlyApproved
           />
-          {customer?.name && (
-            <p className="text-xs text-slate-500">Ordering for {customer.name}</p>
+          {(customer?.name || selectedCustomerName) && (
+            <p className="text-xs text-slate-500">Ordering for {customer?.name ?? selectedCustomerName}</p>
           )}
         </div>
         )}
@@ -87,7 +95,7 @@ export default function ProductDetail() {
             </div>
           </div>
           <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-            <p className="text-4xl font-black text-slate-900">₹{Number(product.price)} <span className="text-base font-medium text-slate-400">/ {product.priceUnit ?? product.unit}</span></p>
+            <p className="text-4xl font-black text-slate-900">₹{tieredPrice.toLocaleString("en-IN", { maximumFractionDigits: 0 })} <span className="text-base font-medium text-slate-400">/ {product.priceUnit ?? product.unit}</span></p>
           </div>
         </div>
 
@@ -139,7 +147,7 @@ export default function ProductDetail() {
           className="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98]"
         >
           <ShoppingCart className="w-5 h-5" />
-          Add to Cart • ₹{(Number(product.price) * quantity).toLocaleString()}
+          Add to Cart • ₹{(tieredPrice * quantity).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
         </button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import type {
   Customer,
   CustomerDetail,
   Invoice,
+  InvoiceDetail,
   LoginResponse,
   Order,
   OrderDetail,
@@ -23,6 +24,8 @@ function storeProfile(profile: LoginResponse["user"]) {
 function clearProfile() {
   localStorage.removeItem(PROFILE_KEY);
   localStorage.removeItem("selected_customer_id");
+  localStorage.removeItem("selected_customer_name");
+  localStorage.removeItem("selected_customer_pricing_type");
 }
 
 export const portalApi = {
@@ -81,8 +84,23 @@ export const portalApi = {
     return http<Invoice[] | PaginatedResult<Invoice>>("/api/invoices.php", { method: "GET" }, params);
   },
 
+  getInvoice(id: string) {
+    return http<{ success: true; data: InvoiceDetail }>("/api/invoices.php", { method: "GET" }, { id });
+  },
+
   getProducts(params?: Record<string, string | number | undefined>) {
     return http<PaginatedResult<Product>>("/api/products.php", { method: "GET" }, params);
+  },
+
+  getDashboard() {
+    return http<{ 
+      monthly_sales: number;
+      new_orders_week: number;
+      assigned_customers: number;
+      pending_orders_count: number;
+      total_outstanding: number;
+      due_invoices_count: number;
+    }>("/api/dashboard.php", { method: "GET" });
   },
 
   getCart(customer_id?: number) {

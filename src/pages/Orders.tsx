@@ -104,12 +104,13 @@ export default function Orders() {
             className="block bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-primary/20 transition-all group"
           >
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">Order #{order.id}</p>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                  {new Date(order.order_date ?? Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-              </div>
+            <div>
+              <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">Order #{order.id}</p>
+              <p className="text-[11px] text-slate-500 font-semibold mt-1">{order.customerName ?? "Customer"}</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                {new Date(order.order_date ?? Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+            </div>
               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                 order.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
                 order.status === 'Created' ? 'bg-blue-100 text-blue-700' :
@@ -122,7 +123,7 @@ export default function Orders() {
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Amount</p>
-                <p className="text-xl font-black text-slate-900">₹{Number(order.grand_total ?? 0).toLocaleString()}</p>
+                <p className="text-xl font-black text-slate-900">₹{Number(order.amount ?? 0).toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-1 text-primary font-black text-[10px] uppercase tracking-widest">
                 View Details
@@ -151,4 +152,3 @@ export default function Orders() {
     </div>
   );
 }
-

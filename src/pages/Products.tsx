@@ -7,13 +7,23 @@ import { motion } from "motion/react";
 import CustomerAutoComplete from "../components/CustomerAutoComplete";
 import { useCart } from "../context/CartContext";
 import { isSalesUser } from "../utils/profile";
+import { getTieredProductPrice } from "../utils/pricing";
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(true);
-  const { getItemQuantity, updateQuantity, customerId, setCustomerId, customer } = useCart();
+  const {
+    getItemQuantity,
+    updateQuantity,
+    customerId,
+    setCustomerId,
+    customer,
+    selectedCustomerName,
+    selectedCustomerPricingType,
+  } = useCart();
+
   const requireCustomer = () => {
     if (isSalesUser() && !customerId) {
       alert("Select a customer before adding items.");
@@ -26,7 +36,13 @@ export default function Products() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await apiProxy.getProducts({ search, category });
+        const params: Record<string, string | number | undefined> = {
+          search,
+          category,
+          ...(customerId != null ? { customer_id: customerId } : {}),
+          ...(selectedCustomerPricingType != null ? { pricing_type: selectedCustomerPricingType } : {}),
+        };
+        const res = await apiProxy.getProducts(params);
         setProducts(res.data || res.products || []);
       } catch (err) {
         console.error(err);
@@ -36,19 +52,19 @@ export default function Products() {
     };
     const timer = setTimeout(fetchProducts, 300);
     return () => clearTimeout(timer);
-  }, [search, category]);
+  }, [search, category, customerId, selectedCustomerPricingType]);
 
   const categories = [
     { name: "All", icon: LayoutGrid, color: "bg-slate-100 text-slate-600" },
     { name: "Plywood", icon: Package, color: "bg-orange-100 text-orange-600" },
-    { name: "Timber", icon: TreePine, color: "bg-emerald-100 text-emerald-600" }
+    { name: "Timber", icon: TreePine, color: "bg-emerald-100 text-emerald-600" },
   ];
 
   return (
     <div className="p-6 space-y-6">
       <header className="space-y-4">
         <h1 className="text-2xl font-bold text-slate-900">Products</h1>
-        
+
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input
@@ -63,13 +79,19 @@ export default function Products() {
         <div className="bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
           <CustomerAutoComplete
             selectedId={customerId ?? null}
-            selectedName={customer?.name}
-            onSelect={(id) => setCustomerId(id)}
+            selectedName={selectedCustomerName ?? customer?.name}
+            onSelect={(id, name, pricingType) => setCustomerId(id, name ?? null, pricingType ?? null)}
             placeholder="Search customers..."
             label="Customer"
+            onlyApproved
           />
-          {customer?.name && (
-            <p className="text-xs text-slate-500">Cart bound to {customer.name}</p>
+          {(customer?.name || selectedCustomerName) ? (
+            <p className="text-xs text-slate-500">Cart bound to {customer?.name ?? selectedCustomerName}</p>
+          ) : (
+            <p className="text-xs text-slate-500">Select an approved customer to unlock pricing and cart data.</p>
+          )}
+          {selectedCustomerPricingType != null && (
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider">Tier {selectedCustomerPricingType} pricing applied</p>
           )}
         </div>
         )}
@@ -100,75 +122,78 @@ export default function Products() {
         </div>
       ) : (
         <div className="space-y-4">
-          {products.map((product) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center justify-between group hover:border-primary/20 transition-all"
-            >
-              <Link to={`/product/${product.id}`} className="flex-1">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      {product.category}
-                    </span>
-                    <span className="text-[10px] font-medium text-slate-400">ID: {product.id}</span>
+          {products.map((product) => {
+            const displayPrice = getTieredProductPrice(product, selectedCustomerPricingType);
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center justify-between group hover:border-primary/20 transition-all"
+              >
+                <Link to={`/product/${product.id}`} className="flex-1">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        {product.category}
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400">ID: {product.id}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm font-extrabold text-slate-900">₹{displayPrice.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</p>
+                      <span className="text-[10px] text-slate-400 font-medium">/ {product.priceUnit ?? product.unit}</span>
+                    </div>
                   </div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    <p className="text-sm font-extrabold text-slate-900">₹{Number(product.price)}</p>
-                    <span className="text-[10px] text-slate-400 font-medium">/ {product.priceUnit ?? product.unit}</span>
-                  </div>
-                </div>
-              </Link>
-              <div className="flex items-center gap-2">
-                {getItemQuantity(product.id) > 0 ? (
-                  <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-1">
-                    <button 
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (!requireCustomer()) return;
-                        await updateQuantity(product.id, getItemQuantity(product.id) - 1);
-                      }}
-                      className="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center hover:text-primary transition-colors"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-6 text-center text-xs font-black text-slate-900">
-                      {getItemQuantity(product.id)}
-                    </span>
-                    <button 
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (!requireCustomer()) return;
-                        await updateQuantity(product.id, getItemQuantity(product.id) + 1);
-                      }}
-                      className="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center hover:text-primary transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <button 
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      if (!requireCustomer()) return;
-                      await updateQuantity(product.id, 1);
-                    }}
-                    className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-all"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                )}
-                <Link to={`/product/${product.id}`} className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-slate-100 transition-all">
-                  <ChevronRight className="w-5 h-5" />
                 </Link>
-              </div>
-            </motion.div>
-          ))}
+                <div className="flex items-center gap-2">
+                  {getItemQuantity(product.id) > 0 ? (
+                    <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+                      <button 
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (!requireCustomer()) return;
+                          await updateQuantity(product.id, getItemQuantity(product.id) - 1);
+                        }}
+                        className="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center hover:text-primary transition-colors"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-6 text-center text-xs font-black text-slate-900">
+                        {getItemQuantity(product.id)}
+                      </span>
+                      <button 
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (!requireCustomer()) return;
+                          await updateQuantity(product.id, getItemQuantity(product.id) + 1);
+                        }}
+                        className="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center hover:text-primary transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (!requireCustomer()) return;
+                        await updateQuantity(product.id, 1);
+                      }}
+                      className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  )}
+                  <Link to={`/product/${product.id}`} className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-slate-100 transition-all">
+                    <ChevronRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
@@ -180,4 +205,3 @@ export default function Products() {
     </div>
   );
 }
-

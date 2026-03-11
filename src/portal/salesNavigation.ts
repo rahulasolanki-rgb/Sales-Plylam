@@ -7,7 +7,6 @@ export interface NavItem {
 export const salesPortalNavigation: NavItem[] = [
   { key: "dashboard", label: "Dashboard", path: "/dashboard" },
   { key: "orders", label: "My Orders", path: "/orders" },
-  { key: "create-order", label: "Create Order", path: "/orders/new" },
   { key: "cart", label: "Cart", path: "/cart" },
   { key: "customers", label: "My Customers", path: "/customers" },
   { key: "invoices", label: "Invoices", path: "/invoices" },

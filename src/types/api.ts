@@ -130,3 +130,30 @@ export interface PaginatedResult<T> {
   data: T[];
   pagination: Pagination;
 }
+
+export interface CompanyInfo {
+  name: string;
+  address?: string;
+}
+
+export interface InvoiceLineItem {
+  product_id: string;
+  productName?: string;
+  quantity: number;
+  unitPrice?: string;
+}
+
+export interface InvoiceDetails extends Invoice {
+  items: InvoiceLineItem[];
+  company_info?: CompanyInfo;
+  can_mark_paid?: boolean;
+}
+
+export interface DashboardMetrics {
+  monthly_sales: number;
+  new_orders_week: number;
+  assigned_customers: number;
+  pending_orders_count: number;
+  total_outstanding: number;
+  due_invoices_count: number;
+}
