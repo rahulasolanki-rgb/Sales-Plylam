@@ -1,29 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../api";
-import { CartItem } from "../types";
-import { ChevronLeft, MapPin, CreditCard, CheckCircle2 } from "lucide-react";
-import { motion } from "motion/react";
+import { ChevronLeft, MapPin, CheckCircle2 } from "lucide-react";
+import { apiProxy } from "../apiProxy";
+import { useCart } from "../context/CartContext";
+import { isSalesUser } from "../utils/profile";
 
 export default function Checkout() {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [address, setAddress] = useState("882 Woodcutter Road, Portland, OR 97201");
-  const [payment, setPayment] = useState("Ending in •• 4492");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      const data = await api.getCart();
-      setItems(data);
-    };
-    fetchCart();
-  }, []);
+  const { cartItems: items, cartTotal, customer, customerId, setCustomerId, refreshCart } = useCart();
 
   const handleCheckout = async () => {
     setLoading(true);
     try {
-      const res = await api.checkout(address);
+      if (isSalesUser() && !customerId) {
+        alert("Select a customer before checkout.");
+        return;
+      }
+      const res = await apiProxy.checkout(customerId ?? undefined);
+      await refreshCart();
       navigate(`/order/${res.order_id}`);
     } catch (err) {
       alert("Checkout failed");
@@ -32,7 +27,7 @@ export default function Checkout() {
     }
   };
 
-  const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const total = cartTotal || items.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
 
   return (
     <div className="p-6 flex flex-col min-h-screen bg-slate-50">
@@ -44,6 +39,20 @@ export default function Checkout() {
       </header>
 
       <div className="flex-1 space-y-8">
+        {isSalesUser() && (
+          <div className="bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Customer ID</label>
+            <input
+              type="number"
+              min={1}
+              value={customerId ?? ""}
+              onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
+              placeholder="Select customer id"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+            />
+          </div>
+        )}
+
         {/* Shipping Section */}
         <section className="space-y-4">
           <div className="flex justify-between items-center px-1">
@@ -55,8 +64,8 @@ export default function Checkout() {
               <MapPin className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-black text-slate-900">Oakridge Construction</p>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed mt-1">{address}</p>
+              <p className="text-sm font-black text-slate-900">{customer?.name ?? "Customer"}</p>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed mt-1">{customer?.address ?? "Address not available"}</p>
             </div>
           </div>
         </section>
@@ -70,16 +79,16 @@ export default function Checkout() {
                 <div key={item.product_id} className="flex justify-between items-center">
                   <div className="space-y-0.5">
                     <p className="text-sm font-bold text-slate-900">{item.name}</p>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">{item.quantity} {item.unit}s</p>
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">{item.quantity} units</p>
                   </div>
-                  <p className="text-sm font-black text-slate-900">₹{(item.price * item.quantity).toLocaleString()}</p>
+                  <p className="text-sm font-black text-slate-900">â‚¹{(Number(item.price) * item.quantity).toLocaleString()}</p>
                 </div>
               ))}
             </div>
             <div className="pt-6 border-t border-slate-50 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-                <span className="text-sm font-black text-slate-900">₹{total.toLocaleString()}</span>
+                <span className="text-sm font-black text-slate-900">â‚¹{total.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping</span>
@@ -87,7 +96,7 @@ export default function Checkout() {
               </div>
               <div className="pt-4 flex justify-between items-center">
                 <span className="text-sm font-black text-slate-900 uppercase tracking-[0.15em]">Grand Total</span>
-                <span className="text-2xl font-black text-slate-900">₹{total.toLocaleString()}</span>
+                <span className="text-2xl font-black text-slate-900">â‚¹{total.toLocaleString()}</span>
               </div>
             </div>
           </div>

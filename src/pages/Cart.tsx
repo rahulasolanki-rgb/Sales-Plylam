@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import { apiService } from "../apiService";
-import { apiProxy } from "../apiProxy";
-import { CartItem } from "../types";
 import { Trash2, ShoppingBag, ChevronRight, Minus, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 import { useCart } from "../context/CartContext";
+import { isSalesUser } from "../utils/profile";
+import CustomerAutoComplete from "../components/CustomerAutoComplete";
 
 export default function Cart() {
-  const { cartItems: items, removeFromCart: removeItem, updateQuantity } = useCart();
+  const { cartItems: items, removeFromCart: removeItem, updateQuantity, cartTotal, customerId, setCustomerId, customer } = useCart();
   const navigate = useNavigate();
-  const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const salesUser = isSalesUser();
+  const subtotal = items.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
   return (
     <div className="p-6 flex flex-col min-h-screen">
       <header className="flex justify-between items-center mb-8">
@@ -20,6 +20,20 @@ export default function Cart() {
           {items.length} Items
         </span>
       </header>
+      {salesUser && (
+        <div className="mb-6 bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
+          <CustomerAutoComplete
+            selectedId={customerId ?? null}
+            selectedName={customer?.name}
+            onSelect={(id) => setCustomerId(id)}
+            placeholder="Search customers..."
+            label="Customer"
+          />
+          {!customer?.name && (
+            <p className="text-xs text-slate-500">Choose a customer to unlock pricing and cart data.</p>
+          )}
+        </div>
+      )}
       {items.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-4">
           <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
@@ -53,8 +67,8 @@ export default function Cart() {
                     </div>
                     <div className="flex justify-between items-center mt-4">
                       <div className="flex items-center gap-2">
-                        <p className="text-base font-black text-slate-900">₹{item.price}</p>
-                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">/ {item.unit}</span>
+                        <p className="text-base font-black text-slate-900">₹{Number(item.price)}</p>
+                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">/ unit</span>
                       </div>
                       <div className="flex items-center bg-slate-100 rounded-2xl p-1">
                         <button 
@@ -80,7 +94,7 @@ export default function Cart() {
           <div className="mt-8 pt-8 border-t border-slate-100 space-y-4">
             <div className="flex justify-between items-center">
               <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Subtotal</p>
-              <p className="text-slate-900 font-black">₹{subtotal.toLocaleString()}</p>
+              <p className="text-slate-900 font-black">₹{(cartTotal || subtotal).toLocaleString()}</p>
             </div>
             <div className="flex justify-between items-center">
               <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Shipping</p>
@@ -88,7 +102,7 @@ export default function Cart() {
             </div>
             <div className="flex justify-between items-center pt-4">
               <p className="text-slate-900 font-black text-lg uppercase tracking-widest">Total Amount</p>
-              <p className="text-3xl font-black text-slate-900">₹{subtotal.toLocaleString()}</p>
+              <p className="text-3xl font-black text-slate-900">₹{(cartTotal || subtotal).toLocaleString()}</p>
             </div>
             <button
               onClick={() => navigate("/checkout")}
@@ -103,3 +117,5 @@ export default function Cart() {
     </div>
   );
 }
+
+

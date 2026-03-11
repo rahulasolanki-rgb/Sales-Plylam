@@ -1,4 +1,4 @@
-export type UserRole = "Customer" | "Sub-user" | "Sales Person" | "Manager" | "Admin / Owner" | "Super Admin";
+export type UserRole = "Customer" | "Sub-user" | "Sales Person";
 
 export interface ApiEnvelope {
   success: boolean;
@@ -12,6 +12,8 @@ export interface AuthUser {
   role: UserRole;
   status?: string;
   customer_id?: number;
+  phone?: string;
+  gstin?: string;
 }
 
 export interface LoginResponse extends ApiEnvelope {
@@ -23,18 +25,12 @@ export interface LoginResponse extends ApiEnvelope {
 export interface Customer {
   id: number;
   name: string;
-  legalName?: string;
-  gstin?: string;
-  address?: string;
   contactPerson?: string;
   phone?: string;
   email?: string;
-  type?: "Dealer" | "Retailer";
-  creditLimit?: string;
   outstandingBalance?: string;
-  status?: "Approved" | "Pending Approval";
-  sales_person_id?: number;
-  created_at?: string;
+  pricing_type?: number;
+  status?: string;
 }
 
 export interface CustomerNote {
@@ -52,53 +48,50 @@ export interface CustomerDetail extends Customer {
 export interface Product {
   id: string;
   name: string;
-  category?: string;
-  category_id?: number;
-  price: string;
-  priceUnit?: string;
+  category: string;
+  price: number | string;
+  priceUnit: string;
+  unit?: string;
   stock?: number;
-  status?: "Active" | "Inactive";
-  gstRate?: number;
-  reorderLevel?: number;
+  stock_quantity?: number;
+  stock_status?: string;
+  pricing_type?: number;
+  pricing_rates?: Record<string, number>;
+  primary_image?: string;
+  description?: string;
 }
 
 export interface Order {
   id: string;
   customer_id: number;
-  customerName?: string;
+  customerName: string;
+  status: string;
   order_date?: string;
-  amount?: string | number;
-  status: "Created" | "Accepted" | "Approved" | "Invoiced" | "Dispatched" | "Completed" | "Cancelled";
-  paymentStatus?: "Credit" | "Paid";
-  sales_person_id?: number;
-  salesPerson?: string;
+  grand_total?: string;
+  pricing_type?: number;
 }
 
 export interface OrderItem {
-  id?: number;
-  order_id: string;
   product_id: string;
   productName?: string;
   quantity: number;
-  unitPrice?: string | number;
+  unitPrice?: string;
 }
 
-export interface OrderDetail extends Order {
+export interface OrderDetails extends Order {
   items: OrderItem[];
+  images?: Array<{ id: number; image_path: string; uploaded_by_name?: string; created_at: string }>;
 }
 
 export interface Invoice {
   id: string;
   order_id: string;
-  customer_id?: number;
-  issue_date?: string;
-  due_date?: string;
-  sub_total?: string | number;
-  cgst?: string | number;
-  sgst?: string | number;
-  grand_total: string | number;
-  status: "Paid" | "Due" | "Overdue";
-  customerName?: string;
+  issue_date: string;
+  due_date: string;
+  grand_total: string;
+  status: string;
+  customer_name?: string;
+  pricing_type?: number;
 }
 
 export interface CartItem {
@@ -112,6 +105,17 @@ export interface CartItem {
 export interface Cart {
   items: CartItem[];
   total: number;
+  pricing_type?: number;
+  customer?: {
+    id: number;
+    name: string;
+    contactPerson?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    gstin?: string;
+    pricing_type?: number;
+  };
 }
 
 export interface Pagination {

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { apiService } from "../apiService";
 import { apiProxy } from "../apiProxy";
 import { User as UserType } from "../types";
 import { User, LogOut, Settings, Bell, Shield, HelpCircle, ChevronRight, Building2, Phone, Mail, Edit2, X, Check } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { isSalesUser } from "../utils/profile";
 
 export default function Profile() {
   const [user, setUser] = useState<UserType | null>(null);
@@ -29,7 +29,10 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await apiProxy.updateProfile(editForm);
+      const payload = isSalesUser()
+        ? { name: editForm.name, phone: editForm.phone }
+        : editForm;
+      await apiProxy.updateProfile(payload);
       setUser((prev) => prev ? { ...prev, ...editForm } : prev);
       setIsEditing(false);
     } catch (err) {

@@ -12,16 +12,13 @@ import Invoices from "./pages/Invoices";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Welcome from "./pages/Welcome";
 import Customers from "./pages/Customers";
-import SalesReport from "./pages/SalesReport";
 import CreateOrder from "./pages/CreateOrder";
 import { CartProvider } from "./context/CartContext";
-import ApiModeToggle from "./components/ApiModeToggle";
+import { env } from "./config/env";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem(env.AUTH_TOKEN_KEY);
   return token ? <>{children}</> : <Navigate to="/login" />;
 };
 
@@ -30,9 +27,8 @@ export default function App() {
     <CartProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Welcome />} />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
 
           <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -46,11 +42,9 @@ export default function App() {
             <Route path="/customers" element={<Customers />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoice/:id" element={<InvoiceDetail />} />
-            <Route path="/reports/sales" element={<SalesReport />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
-        <ApiModeToggle />
       </BrowserRouter>
     </CartProvider>
   );

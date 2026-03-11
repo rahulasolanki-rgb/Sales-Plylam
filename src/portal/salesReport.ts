@@ -9,9 +9,9 @@ export interface SalesReportSnapshot {
 
 export function buildSalesReport(orders: Order[], invoices: Invoice[]): SalesReportSnapshot {
   const totalOrders = orders.length;
-  const totalPendingOrders = orders.filter((x) => ["created", "accepted", "approved", "invoiced", "dispatched"].includes(x.status.toLowerCase())).length;
-  const totalRevenue = orders.reduce((acc, x) => acc + Number(x.amount ?? 0), 0);
-  const unpaidInvoices = invoices.filter((x) => ["due", "overdue"].includes(x.status.toLowerCase())).length;
+  const totalPendingOrders = orders.filter((x) => x.status.toLowerCase() === "pending").length;
+  const totalRevenue = orders.reduce((acc, x) => acc + Number(x.grand_total ?? 0), 0);
+  const unpaidInvoices = invoices.filter((x) => x.status.toLowerCase() === "unpaid").length;
 
   return {
     totalOrders,

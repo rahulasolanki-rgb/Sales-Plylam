@@ -1,7 +1,8 @@
 // API service for Timber & Plywood mobile app
 // Handles authentication, products, cart, orders, invoices, profile
+import { env } from "./config/env";
 
-const API_BASE = '/api';
+const API_BASE = env.API_BASE_URL;
 
 let token: string | null = null;
 

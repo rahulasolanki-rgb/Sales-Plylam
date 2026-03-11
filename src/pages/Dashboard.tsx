@@ -43,7 +43,6 @@ export default function Dashboard() {
         <Link to="/orders/new" className="bg-primary text-white p-4 rounded-xl font-semibold text-center">Create Order</Link>
         <Link to="/cart" className="bg-white p-4 rounded-xl border text-center font-semibold">Cart</Link>
         <Link to="/customers" className="bg-white p-4 rounded-xl border text-center font-semibold">My Customers</Link>
-        <Link to="/reports/sales" className="bg-white p-4 rounded-xl border text-center font-semibold">Sales Report</Link>
       </div>
 
       <div className="bg-white rounded-2xl p-4 border">

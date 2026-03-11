@@ -11,14 +11,14 @@ let mockUser: User = {
 };
 
 let mockProducts: Product[] = [
-  { id: 'PLY-001', name: 'Birch Veneer (3/4")', category: 'Plywood', price: 85.00, unit: 'ea', stock_status: 'in_stock', stock_quantity: 100, description: 'High-quality birch veneer plywood.' },
-  { id: 'PLY-002', name: 'Marine Plywood (1/2")', category: 'Plywood', price: 122.50, unit: 'ea', stock_status: 'in_stock', stock_quantity: 50, description: 'Water-resistant marine grade plywood.' },
-  { id: 'TIM-001', name: 'Oak Finish Trim', category: 'Timber', price: 14.81, unit: 'ea', stock_status: 'in_stock', stock_quantity: 200, description: 'Solid oak finish trim for elegant interiors.' },
-  { id: 'TIM-002', name: 'Pine Stud (2x4)', category: 'Timber', price: 5.50, unit: 'ea', stock_status: 'in_stock', stock_quantity: 500, description: 'Standard pine stud for construction.' },
-  { id: 'PLY-003', name: 'Teak Plywood', category: 'Plywood', price: 150.00, unit: 'ea', stock_status: 'in_stock', stock_quantity: 30, description: 'Premium teak plywood for luxury furniture.' },
-  { id: 'TIM-003', name: 'Cedar Decking', category: 'Timber', price: 24.99, unit: 'ea', stock_status: 'in_stock', stock_quantity: 120, description: 'Natural cedar decking boards for outdoor use.' },
-  { id: 'PLY-004', name: 'MDF Board (1/4")', category: 'Plywood', price: 18.50, unit: 'ea', stock_status: 'in_stock', stock_quantity: 300, description: 'Medium-density fibreboard for versatile projects.' },
-  { id: 'TIM-004', name: 'Walnut Hardwood', category: 'Timber', price: 45.00, unit: 'ea', stock_status: 'in_stock', stock_quantity: 45, description: 'Rich walnut hardwood for high-end carpentry.' },
+  { id: 'PLY-001', name: 'Birch Veneer (3/4")', category: 'Plywood', price: 85.00, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 100, description: 'High-quality birch veneer plywood.' },
+  { id: 'PLY-002', name: 'Marine Plywood (1/2")', category: 'Plywood', price: 122.50, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 50, description: 'Water-resistant marine grade plywood.' },
+  { id: 'TIM-001', name: 'Oak Finish Trim', category: 'Timber', price: 14.81, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 200, description: 'Solid oak finish trim for elegant interiors.' },
+  { id: 'TIM-002', name: 'Pine Stud (2x4)', category: 'Timber', price: 5.50, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 500, description: 'Standard pine stud for construction.' },
+  { id: 'PLY-003', name: 'Teak Plywood', category: 'Plywood', price: 150.00, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 30, description: 'Premium teak plywood for luxury furniture.' },
+  { id: 'TIM-003', name: 'Cedar Decking', category: 'Timber', price: 24.99, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 120, description: 'Natural cedar decking boards for outdoor use.' },
+  { id: 'PLY-004', name: 'MDF Board (1/4")', category: 'Plywood', price: 18.50, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 300, description: 'Medium-density fibreboard for versatile projects.' },
+  { id: 'TIM-004', name: 'Walnut Hardwood', category: 'Timber', price: 45.00, priceUnit: 'ea', stock_status: 'in_stock', stock_quantity: 45, description: 'Rich walnut hardwood for high-end carpentry.' },
 ];
 
 let mockCart: CartItem[] = [];
@@ -27,40 +27,37 @@ let mockOrders: Order[] = [
     id: 'ORD-K9J2L4M1',
     user_id: 1,
     status: 'Dispatched',
-    customerName: "Oakridge Construction",
-    amount: 10711.80,
+    total: 10711.80,
     created_at: '2023-10-24T09:15:00Z',
     shipping_address: '882 Woodcutter Road, Portland, OR 97201',
     items: [
-      { order_id: 'ORD-K9J2L4M1', product_id: 'PLY-001', quantity: 48, price: 85.00, name: 'Birch Veneer (3/4")', unit: 'ea' },
-      { order_id: 'ORD-K9J2L4M1', product_id: 'PLY-002', quantity: 36, price: 122.50, name: 'Marine Plywood (1/2")', unit: 'ea' },
-      { order_id: 'ORD-K9J2L4M1', product_id: 'TIM-001', quantity: 150, price: 14.81, name: 'Oak Finish Trim', unit: 'ea' }
+      { order_id: 'ORD-K9J2L4M1', product_id: 'PLY-001', quantity: 48, price: 85.00, name: 'Birch Veneer (3/4")', priceUnit: 'ea' },
+      { order_id: 'ORD-K9J2L4M1', product_id: 'PLY-002', quantity: 36, price: 122.50, name: 'Marine Plywood (1/2")', priceUnit: 'ea' },
+      { order_id: 'ORD-K9J2L4M1', product_id: 'TIM-001', quantity: 150, price: 14.81, name: 'Oak Finish Trim', priceUnit: 'ea' }
     ]
   },
   {
     id: 'ORD-A1B2C3D4',
     user_id: 1,
     status: 'Completed',
-    customerName: "Oakridge Construction",
-    amount: 2500.00,
+    total: 2500.00,
     created_at: '2023-10-20T14:30:00Z',
     shipping_address: '882 Woodcutter Road, Portland, OR 97201',
     items: [
-      { order_id: 'ORD-A1B2C3D4', product_id: 'PLY-003', quantity: 10, price: 150.00, name: 'Teak Plywood', unit: 'ea' },
-      { order_id: 'ORD-A1B2C3D4', product_id: 'TIM-002', quantity: 181, price: 5.50, name: 'Pine Stud (2x4)', unit: 'ea' }
+      { order_id: 'ORD-A1B2C3D4', product_id: 'PLY-003', quantity: 10, price: 150.00, name: 'Teak Plywood', priceUnit: 'ea' },
+      { order_id: 'ORD-A1B2C3D4', product_id: 'TIM-002', quantity: 181, price: 5.50, name: 'Pine Stud (2x4)', priceUnit: 'ea' }
     ]
   },
   {
     id: 'ORD-X7Y8Z9W0',
     user_id: 1,
     status: 'Approved',
-    customerName: "Oakridge Construction",
-    amount: 1250.00,
+    total: 1250.00,
     created_at: '2023-10-25T11:00:00Z',
     shipping_address: '882 Woodcutter Road, Portland, OR 97201',
     items: [
-      { order_id: 'ORD-X7Y8Z9W0', product_id: 'PLY-004', quantity: 50, price: 18.50, name: 'MDF Board (1/4")', unit: 'ea' },
-      { order_id: 'ORD-X7Y8Z9W0', product_id: 'TIM-004', quantity: 5, price: 45.00, name: 'Walnut Hardwood', unit: 'ea' }
+      { order_id: 'ORD-X7Y8Z9W0', product_id: 'PLY-004', quantity: 50, price: 18.50, name: 'MDF Board (1/4")', priceUnit: 'ea' },
+      { order_id: 'ORD-X7Y8Z9W0', product_id: 'TIM-004', quantity: 5, price: 45.00, name: 'Walnut Hardwood', priceUnit: 'ea' }
     ]
   }
 ];
@@ -126,7 +123,7 @@ export const api = {
         quantity,
         name: product.name,
         price: product.price,
-        unit: product.unit
+        priceUnit: product.priceUnit
       });
     }
     return { success: true };
@@ -147,8 +144,7 @@ export const api = {
       id: orderId,
       user_id: mockUser.id,
       status: 'Created',
-      customerName: mockUser.name,
-      amount: total,
+      total,
       created_at: new Date().toISOString(),
       shipping_address,
       items: mockCart.map(item => ({
@@ -157,7 +153,7 @@ export const api = {
         quantity: item.quantity,
         price: item.price,
         name: item.name,
-        unit: item.unit
+        priceUnit: item.priceUnit ?? item.unit
       }))
     };
 
@@ -195,8 +191,7 @@ export const api = {
       id: orderId,
       user_id: mockUser.id,
       status: 'Created',
-      customerName: mockUser.name,
-      amount: total,
+      total,
       created_at: new Date().toISOString(),
       shipping_address: 'Shipping address to be updated',
       items: items.map((item) => {
@@ -207,7 +202,7 @@ export const api = {
           quantity: item.quantity,
           price: product?.price ?? 0,
           name: product?.name,
-          unit: product?.unit,
+          priceUnit: product?.priceUnit ?? product?.unit,
         };
       }),
     };

@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { BarChart3, ClipboardList, ShoppingCart, User, Users, Home, FileText } from "lucide-react";
+import { ClipboardList, ShoppingCart, User, Users, Home, FileText } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useCart } from "../context/CartContext";
@@ -17,7 +17,6 @@ export default function Layout() {
     { to: "/orders", icon: ClipboardList, label: "Orders", color: "text-purple-500" },
     { to: "/customers", icon: Users, label: "Customers", color: "text-orange-500" },
     { to: "/invoices", icon: FileText, label: "Invoices", color: "text-emerald-500" },
-    { to: "/reports/sales", icon: BarChart3, label: "Report", color: "text-indigo-500" },
     { to: "/profile", icon: User, label: "Profile", color: "text-pink-500" },
   ];
 

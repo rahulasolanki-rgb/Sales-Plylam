@@ -11,6 +11,5 @@ export const salesPortalNavigation: NavItem[] = [
   { key: "cart", label: "Cart", path: "/cart" },
   { key: "customers", label: "My Customers", path: "/customers" },
   { key: "invoices", label: "Invoices", path: "/invoices" },
-  { key: "report", label: "Sales Report", path: "/reports/sales" },
   { key: "profile", label: "Profile", path: "/profile" },
 ];

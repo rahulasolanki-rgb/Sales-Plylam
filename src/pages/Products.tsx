@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import { apiService } from "../apiService";
 import { apiProxy } from "../apiProxy";
 import { Product } from "../types";
-import { Search, Filter, ShoppingCart, Plus, Minus, ChevronRight, LayoutGrid, Package, TreePine } from "lucide-react";
+import { Search, Plus, Minus, ChevronRight, LayoutGrid, Package, TreePine } from "lucide-react";
 import { motion } from "motion/react";
+import CustomerAutoComplete from "../components/CustomerAutoComplete";
 import { useCart } from "../context/CartContext";
+import { isSalesUser } from "../utils/profile";
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(true);
-  const { getItemQuantity, updateQuantity } = useCart();
+  const { getItemQuantity, updateQuantity, customerId, setCustomerId, customer } = useCart();
+  const requireCustomer = () => {
+    if (isSalesUser() && !customerId) {
+      alert("Select a customer before adding items.");
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -51,6 +59,20 @@ export default function Products() {
             className="w-full pl-10 pr-4 py-3 bg-background-light border-none rounded-2xl focus:ring-2 focus:ring-primary/20 transition-all text-sm"
           />
         </div>
+        {isSalesUser() && (
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
+          <CustomerAutoComplete
+            selectedId={customerId ?? null}
+            selectedName={customer?.name}
+            onSelect={(id) => setCustomerId(id)}
+            placeholder="Search customers..."
+            label="Customer"
+          />
+          {customer?.name && (
+            <p className="text-xs text-slate-500">Cart bound to {customer.name}</p>
+          )}
+        </div>
+        )}
 
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((cat) => (
@@ -97,8 +119,8 @@ export default function Products() {
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-3">
-                    <p className="text-sm font-extrabold text-slate-900">₹{product.price}</p>
-                    <span className="text-[10px] text-slate-400 font-medium">/ {product.unit}</span>
+                    <p className="text-sm font-extrabold text-slate-900">₹{Number(product.price)}</p>
+                    <span className="text-[10px] text-slate-400 font-medium">/ {product.priceUnit ?? product.unit}</span>
                   </div>
                 </div>
               </Link>
@@ -108,6 +130,7 @@ export default function Products() {
                     <button 
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (!requireCustomer()) return;
                         await updateQuantity(product.id, getItemQuantity(product.id) - 1);
                       }}
                       className="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center hover:text-primary transition-colors"
@@ -120,6 +143,7 @@ export default function Products() {
                     <button 
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (!requireCustomer()) return;
                         await updateQuantity(product.id, getItemQuantity(product.id) + 1);
                       }}
                       className="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center hover:text-primary transition-colors"
@@ -131,6 +155,7 @@ export default function Products() {
                   <button 
                     onClick={async (e) => {
                       e.preventDefault();
+                      if (!requireCustomer()) return;
                       await updateQuantity(product.id, 1);
                     }}
                     className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-all"
@@ -155,3 +180,4 @@ export default function Products() {
     </div>
   );
 }
+

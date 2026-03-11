@@ -5,7 +5,7 @@ import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
-  const backendOrigin = env.VITE_BACKEND_ORIGIN || 'http://localhost';
+  const backendOrigin = 'http://localhost/natural/api';
   const backendBasePath = env.VITE_BACKEND_BASE_PATH || '/natural';
 
   return {

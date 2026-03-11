@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api } from "../api";
+import { apiProxy } from "../apiProxy";
 import { Product } from "../types";
-import { ChevronLeft, ShoppingCart, Minus, Plus, Share2, Star } from "lucide-react";
-import { motion } from "motion/react";
+import { ChevronLeft, ShoppingCart, Minus, Plus, Share2 } from "lucide-react";
+import CustomerAutoComplete from "../components/CustomerAutoComplete";
+import { useCart } from "../context/CartContext";
+import { isSalesUser } from "../utils/profile";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -11,12 +13,13 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { addToCart, customerId, setCustomerId, customer } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await api.getProducts();
-        const p = res.data.find(item => item.id === id);
+        const res = await apiProxy.getProducts();
+        const p = (res?.data ?? []).find(item => item.id === id);
         setProduct(p || null);
       } catch (err) {
         console.error(err);
@@ -29,8 +32,12 @@ export default function ProductDetail() {
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (isSalesUser() && !customerId) {
+      alert("Select a customer before adding items.");
+      return;
+    }
     try {
-      await api.addToCart(product.id, quantity);
+      await addToCart(product.id, quantity);
       navigate("/cart");
     } catch (err) {
       alert("Failed to add to cart");
@@ -55,6 +62,20 @@ export default function ProductDetail() {
 
       {/* Content */}
       <div className="flex-1 p-8 space-y-8">
+        {isSalesUser() && (
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
+          <CustomerAutoComplete
+            selectedId={customerId ?? null}
+            selectedName={customer?.name}
+            onSelect={(id) => setCustomerId(id)}
+            placeholder="Search customers..."
+            label="Customer"
+          />
+          {customer?.name && (
+            <p className="text-xs text-slate-500">Ordering for {customer.name}</p>
+          )}
+        </div>
+        )}
         <div className="space-y-4">
           <div className="flex justify-between items-start">
             <div className="space-y-1">
@@ -66,7 +87,7 @@ export default function ProductDetail() {
             </div>
           </div>
           <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-            <p className="text-4xl font-black text-slate-900">₹{product.price} <span className="text-base font-medium text-slate-400">/ {product.unit}</span></p>
+            <p className="text-4xl font-black text-slate-900">₹{Number(product.price)} <span className="text-base font-medium text-slate-400">/ {product.priceUnit ?? product.unit}</span></p>
           </div>
         </div>
 
@@ -74,16 +95,16 @@ export default function ProductDetail() {
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Specifications & Description</h2>
           <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
             <p className="text-slate-600 text-sm leading-relaxed">
-              {product.description} Our premium {product.name} is sourced from sustainable forests and processed with the highest standards to ensure durability and finish.
+              {product.description ?? `Premium ${product.name} crafted to our quality standards.`}
             </p>
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stock Available</p>
-                <p className="text-sm font-bold text-slate-900">{product.stock_quantity} {product.unit}s</p>
+                <p className="text-sm font-bold text-slate-900">{product.stock ?? product.stock_quantity ?? "N/A"} {product.priceUnit ?? product.unit}s</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unit Type</p>
-                <p className="text-sm font-bold text-slate-900">{product.unit}</p>
+                <p className="text-sm font-bold text-slate-900">{product.priceUnit ?? product.unit}</p>
               </div>
             </div>
           </div>
@@ -118,9 +139,10 @@ export default function ProductDetail() {
           className="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98]"
         >
           <ShoppingCart className="w-5 h-5" />
-          Add to Cart • ₹{(product.price * quantity).toLocaleString()}
+          Add to Cart • ₹{(Number(product.price) * quantity).toLocaleString()}
         </button>
       </div>
     </div>
   );
 }
+
