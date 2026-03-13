@@ -13,52 +13,20 @@ Sales Portal web app for Timber & Plywood.
 1. Install dependencies:
    `npm install`
 2. Create local env:
-   `VITE_API_BASE_URL=http://localhost/natural/api`
+   Copy `.env.example` to `.env.local` and update values.
 3. Run the app:
    `npm run dev`
 
 ## Production Build
 
 1. Use the production env template:
-   `production.env`
+   `.env.example`
 2. Rename it to `.env.production` (Vite reads this by default), or set the same variables in your deployment system.
 3. Build:
    `npm run build`
 4. Preview locally:
    `npm run preview`
 
-## Android APK (Capacitor)
+## Android + iOS Apps (Capacitor)
 
-**Prerequisites:** Android Studio installed
-
-1. Build the web app:
-   `npm run build`
-2. Add Capacitor:
-   `npm install @capacitor/core @capacitor/cli`
-3. Initialize:
-   `npx cap init`
-4. Add Android platform:
-   `npx cap add android`
-5. Sync web build:
-   `npx cap sync`
-6. Open in Android Studio:
-   `npx cap open android`
-7. In Android Studio: Build > Build Bundle(s)/APK(s) > Build APK(s)
-
-## iOS IPA (Capacitor)
-
-**Prerequisites:** macOS + Xcode installed
-
-1. Build the web app:
-   `npm run build`
-2. Add Capacitor:
-   `npm install @capacitor/core @capacitor/cli`
-3. Initialize:
-   `npx cap init`
-4. Add iOS platform:
-   `npx cap add ios`
-5. Sync web build:
-   `npx cap sync`
-6. Open in Xcode:
-   `npx cap open ios`
-7. In Xcode: set Signing & Capabilities, then Product > Archive to generate an IPA
+See `docs/MOBILE.md` for the full guide, including externalized mobile config in `.env.mobile`.
